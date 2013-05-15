@@ -77,6 +77,9 @@ function colombook_init() {
     
     elgg_unregister_menu_item('topbar', 'elgg_logo');
 
+    // Invalide un nouvel utilisateur, tant qu'il n'a pas accepté les CGU
+    elgg_register_plugin_hook_handler('register', 'user', 'colombook_disable_new_user');
+    
     // Actions
     // -------
     // Enregistrement d'un utilisateur
@@ -108,4 +111,44 @@ function new_index() {
     if (!include_once(elgg_get_plugins_path() . "/colombook/pages/colombook/index.php"))
         return false;
     return true;
+}
+
+function colombook_disable_new_user($hook, $type, $value, $params) {
+	$user = elgg_extract('user', $params);
+
+	// no clue what's going on, so don't react.
+	if (!$user instanceof ElggUser) {
+		return;
+	}
+
+	// another plugin is requesting that registration be terminated
+	if (!$value) {
+		return $value;
+	}
+
+	// has the user already been validated?
+	if (elgg_get_user_validation_status($user->guid) == true) {
+		return $value;
+	}
+
+	// disable user to prevent showing up on the site
+	// set context so our canEdit() override works
+	elgg_push_context('uservalidationbyemail_new_user');
+	$hidden_entities = access_get_show_hidden_status();
+	access_show_hidden_entities(TRUE);
+
+	// Don't do a recursive disable.  Any entities owned by the user at this point
+	// are products of plugins that hook into create user and might need
+	// access to the entities.
+	// @todo That ^ sounds like a specific case...would be nice to track it down...
+	$user->disable('colombook_cgu', FALSE);
+
+	// set user as unvalidated and send out validation email
+	elgg_set_user_validation_status($user->guid, FALSE);
+	uservalidationbyemail_request_validation($user->guid);
+
+	elgg_pop_context();
+	access_show_hidden_entities($hidden_entities);
+
+	return $value;
 }
