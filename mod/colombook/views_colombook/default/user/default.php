@@ -9,8 +9,6 @@
 $entity = $vars['entity'];
 $size = elgg_extract('size', $vars, 'tiny');
 
-$icon = elgg_view_entity_icon($entity, $size, $vars);
-
 // Simple XFN
 $rel = '';
 if (elgg_get_logged_in_user_guid() == $entity->guid) {
@@ -19,7 +17,7 @@ if (elgg_get_logged_in_user_guid() == $entity->guid) {
 	$rel = 'rel="friend"';
 }
 
-$title = "<a href=\"" . $entity->getUrl() . "\" $rel>" . $entity->name . "</a>";
+$title = "<a href=\"".elgg_normalize_url("cb/user/".$entity->getGUID())."\" $rel>" . $entity->name . "</a>";
 
 $metadata = elgg_view_menu('entity', array(
 	'entity' => $entity,
@@ -56,4 +54,4 @@ if (elgg_get_context() == 'gallery') {
 	echo elgg_view_image_block($icon, $list_body, $vars);
 }
 ?>
-blabla
+blablabla
