@@ -1,10 +1,65 @@
 <?php
 
 elgg_register_event_handler('init', 'system', 'colombook_init');
-$colombookUser = null;
+elgg_register_event_handler('pagesetup', 'system', 'colombook_init_2');
+
+function colombook_init() {
+    // Page d'accueil
+    elgg_register_plugin_hook_handler('index', 'system', 'new_index');
+    // Pages Colombook
+    elgg_register_page_handler('cb', 'colombook_page_handler');
+    
+    // Gestion de l'affichage des éléments de la page
+    elgg_register_plugin_hook_handler('view', 'navigation/menu/site', 'colombook_topbar_manager');
+    elgg_register_plugin_hook_handler('view', 'search/search_box', 'colombook_topbar_manager');
+    elgg_register_plugin_hook_handler('view', 'page/layouts/content/filter', 'colombook_filter_manager');
+    elgg_register_plugin_hook_handler('view', 'navigation/breadcrumbs', 'colombook_breadcrumbs_manager');
+    
+    // Invalide un nouvel utilisateur, tant qu'il n'a pas accepté les CGU
+    elgg_register_plugin_hook_handler('register', 'user', 'colombook_disable_new_user');
+    // canEdit override to allow not logged in code to disable a user
+    elgg_register_plugin_hook_handler('permissions_check', 'user', 'colombook_allow_new_user_can_edit');
+
+    // Actions
+    // -------
+    // Enregistrement d'un utilisateur
+    elgg_register_action("colombook/register", elgg_get_plugins_path() . "colombook/actions/colombook/register.php", 'public');
+    // Acceptation des CGU
+    elgg_register_action("colombook/cgu", elgg_get_plugins_path() . "colombook/actions/colombook/cgu.php", 'public');
+
+    
+    // Configuration
+    elgg_set_config('colombook_hide_topbar', false);
+    if (strcmp(elgg_get_context(),"blog")==0)
+        elgg_set_config('colombook_hide_filter', true);
+    else 
+        elgg_set_config('colombook_hide_filter', false);
+    if (strcmp(elgg_get_context(),"blog")==0)
+        elgg_set_config('colombook_hide_breadcrumbs', true);
+    else 
+        elgg_set_config('colombook_hide_breadcrumbs', false);
+    //elgg_extend_view('forms/register', 'colombook/register');
+    
+    // Javascript
+    $js_url = elgg_get_site_url()."mod/colombook/js/colombook.js";
+    elgg_register_js('colombook', $js_url);
+    
+    // CSS
+    elgg_extend_view("css/elgg", "colombook/css");
+    
+    // On supprime le RSS
+    elgg_unregister_plugin_hook_handler('output:before', 'layout', 'elgg_views_add_rss_link');
+}
+
+function colombook_init_2() {
+    // Menus
+    colombook_init_menus();
+}
 
 function colombook_page_handler($segments) {
     $page = null;
+    $colombookUser = null;
+    $guid = null;
     switch ($segments[0]) {
         case 'register':
             $page = "register.php";
@@ -29,6 +84,11 @@ function colombook_page_handler($segments) {
                 elgg_set_view_location("object/blog", elgg_get_plugins_path()."colombook/views_colombook/");
             }
             break;        
+        case 'cgu':
+            $page = "cgu.php";
+            $guid = $segments[1];
+            elgg_set_config('colombook_hide_topbar', true);
+            break;        
         case 'ax_posts':
         case 'ax_email':
         case 'ax_chat':
@@ -47,17 +107,40 @@ function colombook_page_handler($segments) {
     return false;
 }
 
-
-function colombook_init() {
-    // Page d'accueil
-    elgg_register_plugin_hook_handler('index', 'system', 'new_index');
-    // Pages Colombook
-    elgg_register_page_handler('cb', 'colombook_page_handler');
-    // Gestion de l'affichage des éléments de la page
-    elgg_register_plugin_hook_handler('view', 'navigation/menu/site', 'colombook_topbar_manager');
-    elgg_register_plugin_hook_handler('view', 'search/search_box', 'colombook_topbar_manager');
+function colombook_init_menus() {
     elgg_unregister_menu_item('topbar', 'elgg_logo');
+    elgg_unregister_menu_item('topbar', 'friends');
+    // On enlève tous les items du menu site
+    elgg_unregister_menu_item('site', 'activity');
+    elgg_unregister_menu_item('site', 'blog');
+    elgg_unregister_menu_item('site', 'file');
+    elgg_unregister_menu_item('site', 'members');
+
+    // On ajoute nos menus
+    elgg_register_menu_item('site', array(
+            'name' => "activity",
+            'href' => "blog/all",
+            'text' => "Activités",
+    ));
     
+    if (elgg_is_logged_in()) {
+        $href = "blog/owner/".  elgg_get_logged_in_user_entity()->username;
+        elgg_register_menu_item('site', array(
+                'name' => "wall",
+                'href' => $href,
+                'text' => "Mon mur",
+        ));
+
+        $href = "friends/".  elgg_get_logged_in_user_entity()->username;
+        elgg_register_menu_item('site', array(
+                'name' => "contacts",
+                'href' => $href,
+                'text' => "Contacts",
+        ));
+
+        
+    }
+
     elgg_register_menu_item('page', array(
             'name' => "colombook",
             'href' => "cb/admin",
@@ -74,36 +157,38 @@ function colombook_init() {
                 'section' => "alt"
         ));
     }    
-    
-    elgg_unregister_menu_item('topbar', 'elgg_logo');
-
-    // Invalide un nouvel utilisateur, tant qu'il n'a pas accepté les CGU
-    elgg_register_plugin_hook_handler('register', 'user', 'colombook_disable_new_user');
-    
-    // Actions
-    // -------
-    // Enregistrement d'un utilisateur
-    elgg_register_action("colombook/register", elgg_get_plugins_path() . "colombook/actions/colombook/register.php", 'public');
-    // Configuration
-    elgg_set_config('colombook_hide_topbar', false);
-    //elgg_extend_view('forms/register', 'colombook/register');
-    
-    // Javascript
-    $js_url = elgg_get_site_url()."mod/colombook/js/colombook.js";
-    elgg_register_js('colombook', $js_url);
 
 }
+
 
 function colombook_topbar_manager($hook, $type, $returnvalue, $params) {
     $hideTopbar = elgg_get_config('colombook_hide_topbar');
     if ($hideTopbar) {
         // Hide element
-        return "";        
+        return "";
     } else {
         return $returnvalue;
     }
 }
- 
+
+function colombook_filter_manager($hook, $type, $returnvalue, $params) {
+    $hideFilter = elgg_get_config('colombook_hide_filter');
+    if ($hideFilter) {
+    /*if (strcmp(elgg_get_context(),"blog")==0) {
+        die(var_dump($returnvalue));*/
+        return "";
+    } else
+        return $returnvalue;
+}
+
+function colombook_breadcrumbs_manager($hook, $type, $returnvalue, $params) {
+    $hideBreadcrumbs = elgg_get_config('colombook_hide_breadcrumbs');
+    if ($hideBreadcrumbs) {
+        return "";
+    } else
+        return $returnvalue;
+}
+
 function new_index() {
     if (elgg_is_logged_in ())
         return false;
@@ -133,7 +218,7 @@ function colombook_disable_new_user($hook, $type, $value, $params) {
 
 	// disable user to prevent showing up on the site
 	// set context so our canEdit() override works
-	elgg_push_context('uservalidationbyemail_new_user');
+	elgg_push_context('colombook_new_user');
 	$hidden_entities = access_get_show_hidden_status();
 	access_show_hidden_entities(TRUE);
 
@@ -143,12 +228,27 @@ function colombook_disable_new_user($hook, $type, $value, $params) {
 	// @todo That ^ sounds like a specific case...would be nice to track it down...
 	$user->disable('colombook_cgu', FALSE);
 
-	// set user as unvalidated and send out validation email
 	elgg_set_user_validation_status($user->guid, FALSE);
-	uservalidationbyemail_request_validation($user->guid);
 
 	elgg_pop_context();
 	access_show_hidden_entities($hidden_entities);
 
+        forward("cb/cgu/".$user->guid);
+        
 	return $value;
+}
+
+function colombook_allow_new_user_can_edit($hook, $type, $value, $params) {
+	$user = elgg_extract('entity', $params);
+
+	if (!($user instanceof ElggUser)) {
+		return;
+	}
+
+	$context = elgg_get_context();
+	if ($context == 'colombook_new_user' || $context == 'colombook_validate_user') {
+		return TRUE;
+	}
+
+	return;
 }

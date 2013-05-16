@@ -3,7 +3,7 @@ Colombook est un service de Colombbus à vocation pédagogique. Colombbus décli
 <ol>
     <li>Droits de Colombook
         <ol>
-            <li>En vous inscrivant sur le site Colombook vous déclinez vos droits de propriété sur le texte, les images et vidéos que vous publierez sur Colombook, ceci au profit de l’association Colombbus.</li>
+            <li>En vous inscrivant sur le site <strong>Colombook</strong> vous déclinez vos droits de propriété sur le texte, les images et vidéos que vous publierez sur Colombook, ceci au profit de l’association Colombbus.</li>
         </ol>
     </li>
     <li>Traitement des données à caractère personnel 
@@ -35,9 +35,11 @@ Colombook est un service de Colombbus à vocation pédagogique. Colombbus décli
     </li>
 </ol>
 <?php
-    echo elgg_view("input/checkbok", array('name'=>'10euros', ''));
+    echo elgg_view("input/checkbox", array('name'=>'euros', 'checked'=>'1'));
+    if (isset($vars['guid']))
+        echo elgg_view("input/hidden", array('name'=>'guid', 'value'=>$vars['guid']));
 ?>
-<label>J'accepte de donner 10 euros aux animateurs à la fin de la séance, s'ils me le demandent</label>
+<label>Je m'engage à donner 10 euros aux animateurs à la fin de la séance, s'ils me le demandent</label>
 </div>
 <?php
     echo elgg_view("input/submit", array('value'=>"J'accepte"));
