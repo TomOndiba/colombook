@@ -260,7 +260,8 @@ elgg.ui.initDatePicker = function() {
 	var loadDatePicker = function() {
 		$('.elgg-input-date').datepicker({
 			// ISO-8601
-			dateFormat: 'yy-mm-dd',
+                        // Colombook : changed date format
+			dateFormat: /*'yy-mm-dd'*/'dd/mm/yy',
 			onSelect: function(dateText) {
 				if ($(this).is('.elgg-input-timestamp')) {
 					// convert to unix timestamp
