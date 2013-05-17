@@ -8,7 +8,7 @@
 //language then please write in the format similar to
 //english_informal.php
 
-    $frei_trans['cb_head']           =          'Membres';
+    $frei_trans['cb_head']           =          'Contacts';
     $frei_trans['g_prefix']          =          'Visiteur-';
     $frei_trans['pwdby']             =          'Réalisé par';
     $frei_trans['noline']            =          'Aucune personne connectée';
@@ -40,8 +40,6 @@
     $frei_trans['status_txt_busy']          =       'Occupé';
     $frei_trans['status_txt_invisible']     =       'Invisible';
     $frei_trans['status_txt_offline']       =       'Déconnecté';
-
-    
     
     $frei_trans['chat_message_me'] = 'Moi';
 
