@@ -112,7 +112,19 @@ function add_entity_relationship($guid_one, $relationship, $guid_two) {
  * @return ElggRelationship|false Depending on success
  */
 function check_entity_relationship($guid_one, $relationship, $guid_two) {
-	global $CONFIG;
+        /* COLOMBOOK : modify function to return a fake relationship if relation is 'friend'
+        */
+        if ($relationship == 'friend') {
+            $relationShip = new ElggRelationship();
+            $relationShip->guid_one = $guid_one;
+            $relationShip->guid_two = $guid_two;
+            $relationShip->relationship = 'friend';
+            return  $relationShip;
+        } 
+        /* COLOMBOOK END
+         */
+
+        global $CONFIG;
 
 	$guid_one = (int)$guid_one;
 	$relationship = sanitise_string($relationship);
@@ -263,6 +275,19 @@ function get_entity_relationships($guid, $inverse_relationship = FALSE) {
  * @since 1.7.0
  */
 function elgg_get_entities_from_relationship($options) {
+        /* COLOMBOOK : modify function to retrieve every non-admin users when looking for friends
+        */
+        if ($options['relationship'] == 'friend') {
+            return elgg_get_entities(array(
+                    'type' => 'user', 
+                    'joins' => array("join ".elgg_get_config("dbprefix")."users_entity u on e.guid = u.guid"),
+                    'wheres' => array("u.admin = 'no'", "e.guid != ".$options['relationship_guid'])
+            ));
+        } 
+        /* COLOMBOOK END
+         */
+        
+    
 	$defaults = array(
 		'relationship' => NULL,
 		'relationship_guid' => NULL,
