@@ -14,6 +14,10 @@ function colombook_init() {
     elgg_register_plugin_hook_handler('view', 'search/search_box', 'colombook_topbar_manager');
     elgg_register_plugin_hook_handler('view', 'page/layouts/content/filter', 'colombook_filter_manager');
     elgg_register_plugin_hook_handler('view', 'navigation/breadcrumbs', 'colombook_breadcrumbs_manager');
+    elgg_register_plugin_hook_handler('prepare', 'menu:entity', 'colombook_entity_menu_manager');
+    elgg_register_plugin_hook_handler('prepare', 'menu:page', 'colombook_page_menu_manager');
+    elgg_register_plugin_hook_handler('register', 'menu:user_hover', 'colombook_user_hover_menu_manager');
+
     
     // Invalide un nouvel utilisateur, tant qu'il n'a pas accepté les CGU
     elgg_register_plugin_hook_handler('register', 'user', 'colombook_disable_new_user');
@@ -49,6 +53,8 @@ function colombook_init() {
     
     // On supprime le RSS
     elgg_unregister_plugin_hook_handler('output:before', 'layout', 'elgg_views_add_rss_link');
+
+    //elgg_unregister_plugin_hook_handler('register', 'menu:user_hover', 'elgg_user_hover_menu');
 }
 
 function colombook_init_2() {
@@ -135,7 +141,7 @@ function colombook_init_menus() {
         elgg_register_menu_item('site', array(
                 'name' => "contacts",
                 'href' => $href,
-                'text' => "Contacts",
+                'text' => "Mes amis",
         ));
 
         
@@ -156,10 +162,8 @@ function colombook_init_menus() {
                 'text' => "Administration Colombook",
                 'section' => "alt"
         ));
-    }    
-
+    }
 }
-
 
 function colombook_topbar_manager($hook, $type, $returnvalue, $params) {
     $hideTopbar = elgg_get_config('colombook_hide_topbar');
@@ -190,12 +194,45 @@ function colombook_breadcrumbs_manager($hook, $type, $returnvalue, $params) {
 }
 
 function new_index() {
-    if (elgg_is_logged_in ())
-        return false;
+    if (elgg_is_logged_in ()) {
+        forward ("blog/all");
+        return true;
+    }
     elgg_set_config('colombook_hide_topbar', true);
     if (!include_once(elgg_get_plugins_path() . "/colombook/pages/colombook/index.php"))
         return false;
     return true;
+}
+function colombook_entity_menu_manager($hook, $type, $returnValue, $vars) {
+    if ($vars['handler'] == "blog") {
+        unset($returnValue["default"][0]);
+        $returnValue["default"] = array_values($returnValue["default"]);
+    }
+    return $returnValue;
+}
+
+function colombook_page_menu_manager($hook, $type, $returnValue, $vars) {
+    if (elgg_get_context() == "friends") {
+        return array();
+    }
+    return $returnValue;
+}
+
+function colombook_user_hover_menu_manager($hook, $type, $returnValue, $vars) {
+    //die(var_dump($returnValue));
+    $index = -1;
+    $i = 0;
+    foreach($returnValue as $item) {
+        if ($item->getName() == "remove_friend") {
+            $index = $i;
+        }
+        $i++;
+    }
+    if ($index>=0) {
+        unset($returnValue[$index]);
+        $returnValue = array_values($returnValue);
+    }
+    return $returnValue;
 }
 
 function colombook_disable_new_user($hook, $type, $value, $params) {

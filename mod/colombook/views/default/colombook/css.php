@@ -40,5 +40,18 @@
 
 .colombook_note {
     float:right;
-    
+}
+
+.colombook_access {
+    margin-top:2px;
+    font-size:0.9em;
+    margin-bottom:15px;
+}
+
+.colombook_access input {
+    vertical-align:-2px;
+}
+
+.colombook_access label {
+    font-weight:normal;
 }
