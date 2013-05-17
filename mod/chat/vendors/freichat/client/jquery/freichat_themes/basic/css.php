@@ -56,15 +56,19 @@ color:blue;
 }
 
 .freichathead {
-padding-top:3px;
-padding-bottom:3px;
+padding:3px;
 -webkit-border-top-left-radius:8px;
 -webkit-border-top-right-radius:8px;
 -moz-border-radius-topleft:8px;
 -moz-border-radius-topright:8px;
 border-top-left-radius:8px;
 border-top-right-radius:8px;
-background-image:url('<?php echo $config->freichat_theme; ?>/<?php echo $freichatheadimg; ?>');
+background-color:#4690D6;
+color:white;
+}
+.freichat_user_options_img {
+    float:right;
+    direction:rtl;
 }
 
 .frei_status_options img {
@@ -219,9 +223,19 @@ overflow:auto;
 width:200px;
 }
 
+#frei {
+    padding-righ:3px;
+    padding-left:3px;
+}
+
 .frei_user_brand {
-border:1px solid black;
-background-image:url('<?php echo $config->freichat_theme . "/" . $frei_user_brandimg; ?>');
+border:1px solid #CCCCCC;
+background-color:#FFFFFF;
+}
+
+#frei_user_brand div:last-child{
+    text-align:right;
+    padding-right:3px;
 }
 
 .frei_user_count {
@@ -296,12 +310,11 @@ right:878px;
 }
 
 .chatboxhead {
-background-color:none;
+background-color:#4690D6;
 padding:6px;
 color:#FFFFFF;
 width:213px;
 border-bottom:1px solid  #000000;
-background-image:url('<?php echo $config->freichat_theme; ?>/<?php echo $btopimg; ?>');
 font-size:14px;
 border-top-right-radius:5px;
 -moz-border-radius-topright:5px;
@@ -527,7 +540,6 @@ line-height:100%;
 text-align:left;
 padding-top:0px;
 padding-bottom:1px;
-width:99%;
 }
 
 .freichat_userscontentname {
