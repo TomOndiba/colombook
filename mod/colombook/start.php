@@ -30,6 +30,8 @@ function colombook_init() {
     elgg_register_action("colombook/register", elgg_get_plugins_path() . "colombook/actions/colombook/register.php", 'public');
     // Acceptation des CGU
     elgg_register_action("colombook/cgu", elgg_get_plugins_path() . "colombook/actions/colombook/cgu.php", 'public');
+    // Modification du profil
+    elgg_register_action("profile/edit", elgg_get_plugins_path() . "colombook/actions/profile/edit.php", 'logged_in');
 
     
     // Configuration

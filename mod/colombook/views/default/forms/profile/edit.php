@@ -4,28 +4,8 @@
  *
  * @uses vars['entity']
  */
+require elgg_get_plugins_path()."colombook/lib/colombook.php";
 
-?>
-
-<?php
-
-$profile_fields = array('firstname' => array('type'=>'text'),
-                'lastname' => array('type'=>'text'),
-                'description' => array('type'=>'longtext'),
-                'birthday' => array('type'=>'date', 'access' => 1),
-                'sex' => array('type'=>'radio', 'options'=>array('Une fille'=>'f', 'Un garçon'=>'m')),
-                'school' => array('type'=>'text'),
-                'class' => array('type'=>'text'),
-		'address' => array('type'=>'plaintext', 'rows' => 3),
-		'phone' => array('type'=>'text', 'access' => 1),
-		'console' => array('type'=>'dropdown', 'options' => array("Non", "PSP", "PSP Vita", "Nintendo DS", "PS2", "PS3", "Xbox", "Xbox 360", "Wii", "Game Cube", "Autre"), 'access' => 1),
-		'parents' => array('type'=>'plaintext', 'rows' => 3, 'access' => 1),
-                'sport' => array('type'=>'dropdown', 'options' => array("Non", "Football", "Basket", "Handball", "Badminton", "Natation", "Art martial", "Roller", "Trotinette ", "Skate", "Hip Hop", "Autre"), 'access' => 1),
-                'music' => array('type'=>'text', 'access' => 1),
-                'tv' => array('type'=>'text', 'access' => 1),
-		'contactemail' => array('type'=>'email', 'access' => 1)
-    );
-        
 if (is_array($profile_fields) && count($profile_fields) > 0) {
 	foreach ($profile_fields as $shortname => $field_data) {
 		$metadata = elgg_get_metadata(array(
@@ -68,11 +48,11 @@ if (is_array($profile_fields) && count($profile_fields) > 0) {
                 unset($field_data['access']);
                 unset($field_data['type']);
                 $params = array_merge($params, $field_data);
-		echo elgg_view("input/{$type}", $params);
+                echo elgg_view("input/{$type}", $params);
                 if ($access) {
                     $params = array(
-                            'name' => "accesslevel[$shortname]",
-                            'value' => $access_id,
+                            'name' => "privateaccess[$shortname]",
+                            'value' => "1",
                     );
                     if ($access_id == ACCESS_PRIVATE) {
                         $params['checked'] = "1";
