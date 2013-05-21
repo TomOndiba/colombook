@@ -83,9 +83,9 @@ function profile_page_handler($page) {
 		'content' => elgg_view('profile/wrapper'),
 		'num_columns' => 3,
 	);
-	$content = elgg_view_layout('widgets', $params);
+	/*$content = elgg_view_layout('one_column', $params);*/
 
-	$body = elgg_view_layout('one_column', array('content' => $content));
+	$body = elgg_view_layout('one_column', array('content' => elgg_view('profile/wrapper')));
 	echo elgg_view_page($user->name, $body);
 	return true;
 }
